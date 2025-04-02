@@ -172,3 +172,5 @@ cython_debug/
 
 # PyPI configuration file
 .pypirc
+
+.library_fund_db
