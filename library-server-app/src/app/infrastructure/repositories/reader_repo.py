@@ -1,3 +1,4 @@
+from typing import List, Optional
 from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import date
@@ -7,6 +8,8 @@ class ReaderRepository:
     def __init__(self, db: AsyncSession):
         self.db = db
 
+
+    # ======================== CRUD ========================
     async def create_student(self, name: str, birth_date: date, library_id: int,
                              university: str, faculty: str, course: str, group_number: int) -> int:
         result = await self.db.execute(text("""
@@ -92,3 +95,98 @@ class ReaderRepository:
         })
         await self.db.commit()
         return result.scalar_one()
+    
+    async def get_students(
+        self,
+        university: Optional[str] = None,
+        faculty: Optional[str] = None,
+        course: Optional[str] = None,
+        group_number: Optional[int] = None,
+    ) -> List[dict]:
+        query = text("""
+            SELECT * FROM get_students(:university, :faculty, :course, :group_number)
+        """)
+        result = await self.db.execute(
+            query,
+            {
+                "university": university,
+                "faculty": faculty,
+                "course": course,
+                "group_number": group_number,
+            }
+        )
+        return result.mappings().all()
+
+    async def get_scientists(
+        self, 
+        organization: Optional[str] = None, 
+        research_topic: Optional[str] = None
+    ) -> List[dict]:
+        query = text("""
+            SELECT * FROM get_scientists(:organization, :research_topic)
+        """)
+        result = await self.db.execute(query, {"organization": organization, "research_topic": research_topic})
+        return result.mappings().all()
+
+    async def get_teachers(
+        self, 
+        subject: Optional[str] = None, 
+        school_addr: Optional[str] = None
+    ) -> List[dict]:
+        query = text("""
+            SELECT * FROM get_teachers(:subject, :school_addr)
+        """)
+        result = await self.db.execute(query, {"subject": subject, "school_addr": school_addr})
+        return result.mappings().all()
+
+    async def get_schoolboys(
+        self, 
+        school_addr: Optional[str] = None, 
+        school_class: Optional[int] = None
+    ) -> List[dict]:
+        query = text("""
+            SELECT * FROM get_schoolboys(:school_addr, :school_class)
+        """)
+        result = await self.db.execute(query, {"school_addr": school_addr, "school_class": school_class})
+        return result.mappings().all()
+
+    async def get_workers(
+        self, 
+        organization: Optional[str] = None, 
+        position: Optional[str] = None
+    ) -> List[dict]:
+        query = text("""
+            SELECT * FROM get_workers(:organization, :position)
+        """)
+        result = await self.db.execute(query, {"organization": organization, "position": position})
+        return result.mappings().all()
+
+    async def get_retirees(
+        self, 
+        organization: Optional[str] = None, 
+        experience: Optional[int] = None
+    ) -> List[dict]:
+        query = text("""
+            SELECT * FROM get_retirees(:organization, :experience)
+        """)
+        result = await self.db.execute(query, {"organization": organization, "experience": experience})
+        return result.mappings().all()
+
+    async def delete_reader_by_id(self, reader_id: int) -> None:
+        await self.db.execute(text("SELECT delete_reader_by_id(:id)"), {"id": reader_id})
+        await self.db.commit()
+
+
+    async def get_readers_with_unreturned_loan_by_work_title(self, title: str) -> List[dict]:
+        query = text("""
+            SELECT DISTINCT r.*
+            FROM Loan l
+            JOIN Reader r ON l.reader_id = r.id
+            JOIN Copy c ON l.copy_id = c.id
+            JOIN Edition e ON c.edition_id = e.id
+            JOIN Edition_Work ew ON e.id = ew.edition_id
+            JOIN Work w ON ew.work_id = w.id
+            WHERE w.title = :title AND l.return_date IS NULL
+        """)
+        result = await self.db.execute(query, {"title": title})
+        return result.mappings().all()
