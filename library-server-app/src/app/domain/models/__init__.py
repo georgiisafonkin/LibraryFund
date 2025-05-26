@@ -1,0 +1,7 @@
+from .reader import Reader
+from .retiree import Retiree
+from .student import Student
+from .schoolboy import Schoolboy
+from .scientist import Scientist
+from .teaher import Teacher
+from .worker_reader import WorkerReader
