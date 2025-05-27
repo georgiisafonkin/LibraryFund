@@ -259,3 +259,16 @@ async def get_foreign_library_loans(
     repo = ReaderRepository(db)
     titles = await repo.get_foreign_library_loans(reader_id, start_date, end_date)
     return titles
+
+
+@reader_router.get("/unreturned-titles-by-shelf", response_model=List[Edition])
+async def get_unreturned_titles_by_shelf(
+    shelf_id: int = Query(...),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Получить список литературы, которая в настоящий момент выдана с определенной полки некоторой библиотеки.
+    
+    """
+    repo = ReaderRepository(db)
+    return await repo.get_unreturned_titles_by_shelf(shelf_id)

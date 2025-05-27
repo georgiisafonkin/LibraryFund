@@ -275,3 +275,14 @@ class ReaderRepository:
             "end_date": end_date
         })
         return result.mappings().all()
+    
+    async def get_unreturned_titles_by_shelf(self, shelf_id: int) -> List[str]:
+        query = text("""
+            SELECT e.title
+            FROM Copy c
+            JOIN Edition e ON c.edition_id = e.id
+            JOIN Loan l ON l.copy_id = c.id
+            WHERE c.shelf_id = :shelf_id AND l.return_date IS NULL
+        """)
+        result = await self.db.execute(query, {"shelf_id": shelf_id})
+        return result.mappings().all()
