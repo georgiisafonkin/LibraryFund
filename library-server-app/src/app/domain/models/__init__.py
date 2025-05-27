@@ -5,3 +5,4 @@ from .schoolboy import Schoolboy
 from .scientist import Scientist
 from .teaher import Teacher
 from .worker_reader import WorkerReader
+from .edition.edition import Edition

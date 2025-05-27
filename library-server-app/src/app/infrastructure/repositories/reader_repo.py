@@ -228,3 +228,25 @@ class ReaderRepository:
             "end_date": end_date
         })
         return result.mappings().all()
+    
+    async def get_loaned_editions_by_reader_and_date_range(
+        self,
+        reader_id: int,
+        start_date: date,
+        end_date: date
+    ) -> List[str]:
+        query = text("""
+            SELECT DISTINCT e.title
+            FROM Loan l
+            JOIN Reader r ON l.reader_id = r.id
+            JOIN Copy c ON l.copy_id = c.id
+            JOIN Edition e ON c.edition_id = e.id
+            WHERE r.id = :reader_id
+              AND l.loan_date BETWEEN :start_date AND :end_date
+        """)
+        result = await self.db.execute(query, {
+            "reader_id": reader_id,
+            "start_date": start_date,
+            "end_date": end_date
+        })
+        return result.mappings().all()

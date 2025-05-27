@@ -16,13 +16,13 @@ def list_readers(service):
 
 @reader_router.post("/student")
 async def create_student(
-    name: str = Query(None),
-    birth_date: date = Query(None),
-    library_id: int = Query(None),
-    university: str = Query(None),
-    faculty: str = Query(None),
-    course: str = Query(None),
-    group_number: int = Query(None),
+    name: str = Query(...),
+    birth_date: date = Query(...),
+    library_id: int = Query(...),
+    university: str = Query(...),
+    faculty: str = Query(...),
+    course: str = Query(...),
+    group_number: int = Query(...),
     db: AsyncSession = Depends(get_db)
 ):
     repo = ReaderRepository(db)
@@ -40,11 +40,11 @@ async def create_student(
 
 @reader_router.post("/scientist")
 async def create_scientist(
-    name: str = Query(None),
-    birth_date: date = Query(None),
-    library_id: int = Query(None),
-    organization: str = Query(None),
-    research_topic: str = Query(None),
+    name: str = Query(...),
+    birth_date: date = Query(...),
+    library_id: int = Query(...),
+    organization: str = Query(...),
+    research_topic: str = Query(...),
     db: AsyncSession = Depends(get_db)
 ):
     repo = ReaderRepository(db)
@@ -60,11 +60,11 @@ async def create_scientist(
 
 @reader_router.post("/teacher")
 async def create_teacher(
-    name: str = Query(None),
-    birth_date: date = Query(None),
-    library_id: int = Query(None),
-    subject: str = Query(None),
-    school_addr: str = Query(None),
+    name: str = Query(...),
+    birth_date: date = Query(...),
+    library_id: int = Query(...),
+    subject: str = Query(...),
+    school_addr: str = Query(...),
     db: AsyncSession = Depends(get_db)
 ):
     repo = ReaderRepository(db)
@@ -80,11 +80,11 @@ async def create_teacher(
 
 @reader_router.post("/schoolboy")
 async def create_schoolboy(
-    name: str = Query(None),
-    birth_date: date = Query(None),
-    library_id: int = Query(None),
-    school_addr: str = Query(None),
-    school_class: int = Query(None),
+    name: str = Query(...),
+    birth_date: date = Query(...),
+    library_id: int = Query(...),
+    school_addr: str = Query(...),
+    school_class: int = Query(...),
     db: AsyncSession = Depends(get_db)
 ):
     repo = ReaderRepository(db)
@@ -100,11 +100,11 @@ async def create_schoolboy(
 
 @reader_router.post("/worker")
 async def create_worker(
-    name: str = Query(None),
-    birth_date: date = Query(None),
-    library_id: int = Query(None),
-    organization: str = Query(None),
-    position: str = Query(None),
+    name: str = Query(...),
+    birth_date: date = Query(...),
+    library_id: int = Query(...),
+    organization: str = Query(...),
+    position: str = Query(...),
     db: AsyncSession = Depends(get_db)
 ):
     repo = ReaderRepository(db)
@@ -120,11 +120,11 @@ async def create_worker(
 
 @reader_router.post("/retiree")
 async def create_retiree(
-    name: str = Query(None),
-    birth_date: date = Query(None),
-    library_id: int = Query(None),
-    organization: str = Query(None),
-    experience: int = Query(None),
+    name: str = Query(...),
+    birth_date: date = Query(...),
+    library_id: int = Query(...),
+    organization: str = Query(...),
+    experience: int = Query(...),
     db: AsyncSession = Depends(get_db)
 ):
     repo = ReaderRepository(db)
@@ -225,6 +225,7 @@ async def get_readers_with_unreturned_loan_by_edition_title(
     readers = await repo.get_readers_with_unreturned_loan_by_edition_title(title)
     return readers
 
+
 @reader_router.get("/edition-loans-by-work-and-date", response_model=List[dict])
 async def get_readers_and_editions_by_work_and_date_range(
     title: str = Query(..., description="Название произведения"),
@@ -235,3 +236,15 @@ async def get_readers_and_editions_by_work_and_date_range(
     repo = ReaderRepository(db)
     result = await repo.get_readers_and_editions_by_work_and_date_range(title, start_date, end_date)
     return result
+
+
+@reader_router.get("/reader/loaned-editions", response_model=List[Edition])
+async def get_loaned_editions_by_reader(
+    reader_id: int = Query(...),
+    start_date: date = Query(...),
+    end_date: date = Query(...),
+    db: AsyncSession = Depends(get_db)
+):
+    repo = ReaderRepository(db)
+    titles = await repo.get_loaned_editions_by_reader_and_date_range(reader_id, start_date, end_date)
+    return titles
