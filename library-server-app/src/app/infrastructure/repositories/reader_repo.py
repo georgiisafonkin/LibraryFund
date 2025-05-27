@@ -190,3 +190,16 @@ class ReaderRepository:
         """)
         result = await self.db.execute(query, {"title": title})
         return result.mappings().all()
+    
+    
+    async def get_readers_with_unreturned_loan_by_edition_title(self, title: str) -> List[dict]:
+        query = text("""
+            SELECT DISTINCT r.*
+            FROM Loan l
+            JOIN Reader r ON l.reader_id = r.id
+            JOIN Copy c ON l.copy_id = c.id
+            JOIN Edition e ON c.edition_id = e.id
+            WHERE e.title = :title AND l.return_date IS NULL
+        """)
+        result = await self.db.execute(query, {"title": title})
+        return result.mappings().all()
