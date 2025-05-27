@@ -7,6 +7,7 @@ from datetime import date
 
 from src.app.domain.models.edition.edition import Edition
 from src.app.domain.models.copy.copy import Copy
+from src.app.domain.models.work.work_loancount import WorkLoanCount
 from src.app.domain.models.edition.edition_inventory import EditionInventory
 from src.app.infrastructure.repositories.literature_repo import LiteratureRepository
 
@@ -41,3 +42,12 @@ async def get_copies_by_author(
     repo = LiteratureRepository(db)
     copies = await repo.get_copies_by_author(author_name)
     return [Copy(**row) for row in copies]
+
+
+@literature_router.get("/works/top-loaned", response_model=List[WorkLoanCount])
+async def get_top_loaned_works(
+    limit: int = Query(10, gt=0, le=100, description="Количество записей в топе"),
+    db: AsyncSession = Depends(get_db)
+):
+    repo = LiteratureRepository(db)
+    return await repo.get_top_loaned_works(limit)

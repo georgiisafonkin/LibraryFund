@@ -51,3 +51,19 @@ class LiteratureRepository:
         """)
         result = await self.db.execute(query, {"author_name": author_name})
         return result.mappings().all()
+    
+
+    async def get_top_loaned_works(self, limit: int = 10) -> List[dict]:
+        query = text("""
+            SELECT w.title, COUNT(*) AS loan_count
+            FROM Loan l
+            JOIN Copy c ON l.copy_id = c.id
+            JOIN Edition e ON c.edition_id = e.id
+            JOIN Edition_Work ew ON e.id = ew.edition_id
+            JOIN Work w ON ew.work_id = w.id
+            GROUP BY w.title
+            ORDER BY loan_count DESC
+            LIMIT :limit
+        """)
+        result = await self.db.execute(query, {"limit": limit})
+        return result.mappings().all()
