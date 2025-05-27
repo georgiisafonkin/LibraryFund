@@ -36,3 +36,18 @@ class LiteratureRepository:
         """)
         result = await self.db.execute(query, {"title": title})
         return result.mappings().all()
+    
+
+    async def get_copies_by_author(self, author_name: str) -> List[dict]:
+        query = text("""
+            SELECT DISTINCT c.id AS inventory_number, e.title
+            FROM Copy c
+            JOIN Edition e ON c.edition_id = e.id
+            JOIN Edition_Work ew ON e.id = ew.edition_id
+            JOIN Work w ON ew.work_id = w.id
+            JOIN Work_Author wa ON w.id = wa.work_id
+            JOIN Author a ON wa.author_id = a.id
+            WHERE a.name = :author_name
+        """)
+        result = await self.db.execute(query, {"author_name": author_name})
+        return result.mappings().all()

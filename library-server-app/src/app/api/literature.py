@@ -31,3 +31,13 @@ async def get_inventory_numbers_by_work_title(
     repo = LiteratureRepository(db)
     copies = await repo.get_inventory_numbers_by_work_title(title)
     return [Copy(**row) for row in copies]
+
+
+@literature_router.get("/copies/by-author", response_model=List[Copy])
+async def get_copies_by_author(
+    author_name: str = Query(..., description="ФИО автора"),
+    db: AsyncSession = Depends(get_db)
+):
+    repo = LiteratureRepository(db)
+    copies = await repo.get_copies_by_author(author_name)
+    return [Copy(**row) for row in copies]
