@@ -22,3 +22,18 @@ class LibrarianRepository:
             "end_date": end_date
         })
         return result.mappings().all()
+    
+
+    async def get_librarians_by_hall_and_library(self, hall_name: str, library_id: int) -> List[dict]:
+        query = text("""
+            SELECT DISTINCT l.*
+            FROM Librarians_Halls lh
+            JOIN Librarian l ON lh.librarian_id = l.id
+            JOIN Hall h ON lh.hall_id = h.id
+            WHERE h.name = :hall_name AND h.library_id = :library_id;
+        """)
+        result = await self.db.execute(query, {
+            "hall_name": hall_name,
+            "library_id": library_id
+        })
+        return result.mappings().all()
