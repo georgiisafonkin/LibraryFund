@@ -272,3 +272,19 @@ async def get_unreturned_titles_by_shelf(
     """
     repo = ReaderRepository(db)
     return await repo.get_unreturned_titles_by_shelf(shelf_id)
+
+
+@reader_router.get("/readers-by-librarian", response_model=List[Reader])
+async def get_readers_by_librarian_and_loan_period(
+    librarian_id: int = Query(..., description="ID библиотекаря"),
+    start_date: date = Query(..., description="Начальная дата"),
+    end_date: date = Query(..., description="Конечная дата"),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Выдать список читателей, которые в течение обозначенного периода были обслужены указанным библиотекарем
+
+    """
+    repo = ReaderRepository(db)
+    reader =  await repo.get_readers_by_librarian_and_loan_period(librarian_id, start_date, end_date)
+    return [Reader(**row) for row in reader]

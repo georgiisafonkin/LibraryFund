@@ -286,3 +286,19 @@ class ReaderRepository:
         """)
         result = await self.db.execute(query, {"shelf_id": shelf_id})
         return result.mappings().all()
+    
+
+    async def get_readers_by_librarian_and_loan_period(self, librarian_id: int, start_date: date, end_date: date) -> List[dict]:
+        query = text("""
+            SELECT DISTINCT r.*
+            FROM Loan l
+            JOIN Reader r ON l.reader_id = r.id
+            WHERE l.librarian_id = :librarian_id
+              AND l.loan_date BETWEEN :start_date AND :end_date
+        """)
+        result = await self.db.execute(query, {
+            "librarian_id": librarian_id,
+            "start_date": start_date,
+            "end_date": end_date
+        })
+        return result.mappings().all()
