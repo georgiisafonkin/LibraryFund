@@ -238,7 +238,7 @@ async def get_readers_and_editions_by_work_and_date_range(
     return result
 
 
-@reader_router.get("/reader/loaned-editions", response_model=List[Edition])
+@reader_router.get("/loaned-editions", response_model=List[Edition])
 async def get_loaned_editions_by_reader(
     reader_id: int = Query(...),
     start_date: date = Query(...),
@@ -247,4 +247,15 @@ async def get_loaned_editions_by_reader(
 ):
     repo = ReaderRepository(db)
     titles = await repo.get_loaned_editions_by_reader_and_date_range(reader_id, start_date, end_date)
+    return titles
+
+@reader_router.get("/foreign-loans", response_model=List[Edition])
+async def get_foreign_library_loans(
+    reader_id: int = Query(...),
+    start_date: date = Query(...),
+    end_date: date = Query(...),
+    db: AsyncSession = Depends(get_db)
+):
+    repo = ReaderRepository(db)
+    titles = await repo.get_foreign_library_loans(reader_id, start_date, end_date)
     return titles

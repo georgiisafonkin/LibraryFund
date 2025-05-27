@@ -250,3 +250,28 @@ class ReaderRepository:
             "end_date": end_date
         })
         return result.mappings().all()
+    
+
+    async def get_foreign_library_loans(
+        self, reader_id: int, start_date: date, end_date: date
+    ) -> List[str]:
+        query = text("""
+            SELECT DISTINCT e.title
+            FROM Loan l
+            JOIN Reader r ON l.reader_id = r.id
+            JOIN Copy c ON l.copy_id = c.id
+            JOIN Edition e ON c.edition_id = e.id
+            JOIN Shelf s ON c.shelf_id = s.id
+            JOIN Rack ra ON s.rack_id = ra.id
+            JOIN Hall h ON ra.hall_id = h.id
+            WHERE r.id = :reader_id
+              AND h.library_id <> r.library_id
+              AND l.loan_date BETWEEN :start_date AND :end_date
+        """)
+        
+        result = await self.db.execute(query, {
+            "reader_id": reader_id,
+            "start_date": start_date,
+            "end_date": end_date
+        })
+        return result.mappings().all()
