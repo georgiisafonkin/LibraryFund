@@ -327,3 +327,21 @@ class ReaderRepository:
         """)
         result = await self.db.execute(query)
         return result.mappings().all()
+    
+
+    async def get_readers_without_loans_in_period(self, start_date: date, end_date: date) -> List[dict]:
+        query = text("""
+            SELECT *
+            FROM Reader
+            WHERE id NOT IN (
+                SELECT DISTINCT reader_id
+                FROM Loan
+                WHERE (loan_date BETWEEN :start_date AND :end_date)
+                   OR (return_date BETWEEN :start_date AND :end_date)
+            );
+        """)
+        result = await self.db.execute(query, {
+            "start_date": start_date,
+            "end_date": end_date
+        })
+        return result.mappings().all()

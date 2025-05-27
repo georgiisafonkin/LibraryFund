@@ -299,3 +299,18 @@ async def get_overdue_readers(db: AsyncSession = Depends(get_db)):
     repo = ReaderRepository(db)
     readers = await repo.get_overdue_readers()
     return [Reader(**row) for row in readers]
+
+
+@reader_router.get("/no-visits", response_model=List[Reader])
+async def get_readers_without_loans_in_period(
+    start_date: date = Query(..., description="Start of period (YYYY-MM-DD)"),
+    end_date: date = Query(..., description="End of period (YYYY-MM-DD)"),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Получить список читателей, не посещавших библиотеку в течение указанного времени
+
+    """
+    repo = ReaderRepository(db)
+    readers = await repo.get_readers_without_loans_in_period(start_date, end_date)
+    return [Reader(**row) for row in readers]
