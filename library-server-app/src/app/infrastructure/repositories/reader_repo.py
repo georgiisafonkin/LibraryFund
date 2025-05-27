@@ -302,3 +302,17 @@ class ReaderRepository:
             "end_date": end_date
         })
         return result.mappings().all()
+    
+
+    async def count_readers_grouped_by_librarian(self, start_date: date, end_date: date) -> List[dict]:
+        query = text("""
+            SELECT librarian_id, COUNT(reader_id) AS total_readers
+            FROM Loan
+            WHERE loan_date BETWEEN :start_date AND :end_date
+            GROUP BY librarian_id
+        """)
+        result = await self.db.execute(query, {
+            "start_date": start_date,
+            "end_date": end_date
+        })
+        return result.mappings().all()

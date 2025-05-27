@@ -1,3 +1,0 @@
-
-class LibraryFundRepo:
-    pass
