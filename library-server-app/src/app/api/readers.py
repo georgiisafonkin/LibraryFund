@@ -286,5 +286,16 @@ async def get_readers_by_librarian_and_loan_period(
 
     """
     repo = ReaderRepository(db)
-    reader =  await repo.get_readers_by_librarian_and_loan_period(librarian_id, start_date, end_date)
-    return [Reader(**row) for row in reader]
+    readers =  await repo.get_readers_by_librarian_and_loan_period(librarian_id, start_date, end_date)
+    return [Reader(**row) for row in readers]
+
+
+@reader_router.get("/overdue", response_model=List[Reader])
+async def get_overdue_readers(db: AsyncSession = Depends(get_db)):
+    """
+    Получить список читателей с просроченным сроком литературы
+    
+    """
+    repo = ReaderRepository(db)
+    readers = await repo.get_overdue_readers()
+    return [Reader(**row) for row in readers]

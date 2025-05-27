@@ -316,3 +316,14 @@ class ReaderRepository:
             "end_date": end_date
         })
         return result.mappings().all()
+    
+    async def get_overdue_readers(self) -> List[dict]:
+        query = text("""
+            SELECT DISTINCT r.*
+            FROM Loan l
+            JOIN Reader r ON l.reader_id = r.id
+            WHERE l.return_date IS NULL
+              AND CURRENT_DATE > l.loan_date + INTERVAL '1 day' * l.due_date;
+        """)
+        result = await self.db.execute(query)
+        return result.mappings().all()
