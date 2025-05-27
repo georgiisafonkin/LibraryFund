@@ -23,3 +23,16 @@ class LiteratureRepository:
             "end_date": end_date
         })
         return result.mappings().all()
+    
+
+    async def get_inventory_numbers_by_work_title(self, title: str) -> List[dict]:
+        query = text("""
+            SELECT c.id AS inventory_number, e.title
+            FROM Copy c
+            JOIN Edition e ON c.edition_id = e.id
+            JOIN Edition_Work ew ON e.id = ew.edition_id
+            JOIN Work w ON ew.work_id = w.id
+            WHERE w.title = :title
+        """)
+        result = await self.db.execute(query, {"title": title})
+        return result.mappings().all()

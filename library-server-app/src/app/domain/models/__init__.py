@@ -8,3 +8,4 @@ from .worker_reader import WorkerReader
 from .edition.edition import Edition
 from .librarian.librarian import Librarian
 from .edition.edition_inventory import EditionInventory
+from .copy.copy import Copy
