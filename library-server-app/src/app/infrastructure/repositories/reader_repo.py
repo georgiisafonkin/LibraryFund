@@ -191,7 +191,7 @@ class ReaderRepository:
         result = await self.db.execute(query, {"title": title})
         return result.mappings().all()
     
-    
+
     async def get_readers_with_unreturned_loan_by_edition_title(self, title: str) -> List[dict]:
         query = text("""
             SELECT DISTINCT r.*
@@ -202,4 +202,29 @@ class ReaderRepository:
             WHERE e.title = :title AND l.return_date IS NULL
         """)
         result = await self.db.execute(query, {"title": title})
+        return result.mappings().all()
+    
+
+    async def get_readers_and_editions_by_work_and_date_range(
+        self,
+        work_title: str,
+        start_date: date,
+        end_date: date
+    ) -> List[dict]:
+        query = text("""
+            SELECT DISTINCT r.name, e.title
+            FROM Loan l
+            JOIN Reader r ON l.reader_id = r.id
+            JOIN Copy c ON l.copy_id = c.id
+            JOIN Edition e ON c.edition_id = e.id
+            JOIN Edition_Work ew ON e.id = ew.edition_id
+            JOIN Work w ON ew.work_id = w.id
+            WHERE w.title = :title
+              AND l.loan_date BETWEEN :start_date AND :end_date
+        """)
+        result = await self.db.execute(query, {
+            "title": work_title,
+            "start_date": start_date,
+            "end_date": end_date
+        })
         return result.mappings().all()

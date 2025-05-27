@@ -224,3 +224,14 @@ async def get_readers_with_unreturned_loan_by_edition_title(
     repo = ReaderRepository(db)
     readers = await repo.get_readers_with_unreturned_loan_by_edition_title(title)
     return readers
+
+@reader_router.get("/edition-loans-by-work-and-date", response_model=List[dict])
+async def get_readers_and_editions_by_work_and_date_range(
+    title: str = Query(..., description="Название произведения"),
+    start_date: date = Query(..., description="Начальная дата (YYYY-MM-DD)"),
+    end_date: date = Query(..., description="Конечная дата (YYYY-MM-DD)"),
+    db: AsyncSession = Depends(get_db)
+):
+    repo = ReaderRepository(db)
+    result = await repo.get_readers_and_editions_by_work_and_date_range(title, start_date, end_date)
+    return result

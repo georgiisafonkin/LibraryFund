@@ -1,1 +1,0 @@
-from src.app.domain.models.reader import Reader
