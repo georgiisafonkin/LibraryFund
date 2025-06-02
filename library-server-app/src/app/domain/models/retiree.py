@@ -1,5 +1,5 @@
 from .reader import Reader
 
-class Scientist(Reader):
+class Retiree(Reader):
     organization: str
-    research_topic: str
+    experience: int

@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 from datetime import date
 
@@ -7,4 +7,3 @@ class Reader(BaseModel):
     name: str
     birth_date: date
     library_id: int
-    category: int
