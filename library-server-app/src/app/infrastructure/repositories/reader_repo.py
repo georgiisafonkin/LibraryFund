@@ -229,64 +229,6 @@ class ReaderRepository:
         })
         return result.mappings().all()
     
-    async def get_loaned_editions_by_reader_and_date_range(
-        self,
-        reader_id: int,
-        start_date: date,
-        end_date: date
-    ) -> List[str]:
-        query = text("""
-            SELECT DISTINCT e.title
-            FROM Loan l
-            JOIN Reader r ON l.reader_id = r.id
-            JOIN Copy c ON l.copy_id = c.id
-            JOIN Edition e ON c.edition_id = e.id
-            WHERE r.id = :reader_id
-              AND l.loan_date BETWEEN :start_date AND :end_date
-        """)
-        result = await self.db.execute(query, {
-            "reader_id": reader_id,
-            "start_date": start_date,
-            "end_date": end_date
-        })
-        return result.mappings().all()
-    
-
-    async def get_foreign_library_loans(
-        self, reader_id: int, start_date: date, end_date: date
-    ) -> List[str]:
-        query = text("""
-            SELECT DISTINCT e.title
-            FROM Loan l
-            JOIN Reader r ON l.reader_id = r.id
-            JOIN Copy c ON l.copy_id = c.id
-            JOIN Edition e ON c.edition_id = e.id
-            JOIN Shelf s ON c.shelf_id = s.id
-            JOIN Rack ra ON s.rack_id = ra.id
-            JOIN Hall h ON ra.hall_id = h.id
-            WHERE r.id = :reader_id
-              AND h.library_id <> r.library_id
-              AND l.loan_date BETWEEN :start_date AND :end_date
-        """)
-        
-        result = await self.db.execute(query, {
-            "reader_id": reader_id,
-            "start_date": start_date,
-            "end_date": end_date
-        })
-        return result.mappings().all()
-    
-    async def get_unreturned_titles_by_shelf(self, shelf_id: int) -> List[str]:
-        query = text("""
-            SELECT e.title
-            FROM Copy c
-            JOIN Edition e ON c.edition_id = e.id
-            JOIN Loan l ON l.copy_id = c.id
-            WHERE c.shelf_id = :shelf_id AND l.return_date IS NULL
-        """)
-        result = await self.db.execute(query, {"shelf_id": shelf_id})
-        return result.mappings().all()
-    
 
     async def get_readers_by_librarian_and_loan_period(self, librarian_id: int, start_date: date, end_date: date) -> List[dict]:
         query = text("""
@@ -345,3 +287,120 @@ class ReaderRepository:
             "end_date": end_date
         })
         return result.mappings().all()
+    
+    async def update_reader_student(
+        self,
+        reader_id: int,
+        name: str = None,
+        birth_date: date = None,
+        university: str = None,
+        faculty: str = None,
+        course: str = None,
+        group_number: int = None
+    ):
+        query = text("""
+            SELECT update_student_reader(
+                :reader_id,
+                :name,
+                :birth_date,
+                :university,
+                :faculty,
+                :course,
+                :group_number
+            );
+        """)
+
+        result = await self.db.execute(query, {
+            "reader_id": reader_id,
+            "name": name,
+            "birth_date": birth_date,
+            "university": university,
+            "faculty": faculty,
+            "course": course,
+            "group_number": group_number
+        })
+        await self.db.commit()
+        return result
+    
+    async def update_reader_schoolboy(
+        self,
+        reader_id: int,
+        name: str = None,
+        birth_date: date = None,
+        school_addr: str = None,
+        school_class: int = None
+    ):
+        query = text("""
+            SELECT update_schoolboy_reader(
+                :reader_id,
+                :name,
+                :birth_date,
+                :school_addr,
+                :school_class
+            );
+        """)
+        await self.db.execute(query, {
+            "reader_id": reader_id,
+            "name": name,
+            "birth_date": birth_date,
+            "school_addr": school_addr,
+            "school_class": school_class
+        })
+        await self.db.commit()
+        return {"status": "success", "message": "Schoolboy reader updated"}
+    
+
+    async def update_reader_scientist(
+        self,
+        reader_id: int,
+        name: str = None,
+        birth_date: date = None,
+        organization: str = None,
+        research_topic: str = None
+    ):
+        query = text("""
+            SELECT update_scientist_reader(
+                :reader_id,
+                :name,
+                :birth_date,
+                :organization,
+                :research_topic
+            );
+        """)
+        await self.db.execute(query, {
+            "reader_id": reader_id,
+            "name": name,
+            "birth_date": birth_date,
+            "organization": organization,
+            "research_topic": research_topic
+        })
+        await self.db.commit()
+        return {"status": "success", "message": "Scientist reader updated"}
+    
+
+    async def update_reader_teacher(
+        self,
+        reader_id: int,
+        name: str = None,
+        birth_date: date = None,
+        subject: str = None,
+        school_addr: str = None
+    ):
+        query = text("""
+            SELECT update_teacher_reader(
+                :reader_id,
+                :name,
+                :birth_date,
+                :subject,
+                :school_addr
+            );
+        """)
+        await self.db.execute(query, {
+            "reader_id": reader_id,
+            "name": name,
+            "birth_date": birth_date,
+            "subject": subject,
+            "school_addr": school_addr
+        })
+        await self.db.commit()
+        return {"status": "success", "message": "Teacher reader updated"}

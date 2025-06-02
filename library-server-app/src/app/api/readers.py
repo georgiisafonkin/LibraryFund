@@ -7,6 +7,7 @@ from datetime import date
 
 from src.app.domain.models import *
 from src.app.infrastructure.repositories.reader_repo import ReaderRepository
+from typing import Optional
 
 reader_router = APIRouter(prefix="/readers", tags=["readers"])
 
@@ -204,6 +205,86 @@ async def get_retirees(
     retirees = await repo.get_retirees(organization, experience)
     return [Retiree(**row) for row in retirees]
 
+@reader_router.put("/students/{reader_id}")
+async def update_reader_student(
+    reader_id: int,
+    name: Optional[str]=None,
+    birth_date: Optional[date]=None,
+    university: Optional[str]=None,
+    faculty: Optional[str]=None,
+    course: Optional[str]=None,
+    group_number: Optional[int]=None,
+    db: AsyncSession = Depends(get_db)
+):
+    repo = ReaderRepository(db)
+    return await repo.update_reader_student(
+        reader_id=reader_id,
+        name=name,
+        birth_date=birth_date,
+        university=university,
+        faculty=faculty,
+        course=course,
+        group_number=group_number
+    )
+
+
+@reader_router.put("/schoolboys/{reader_id}")
+async def update_reader_schoolboy(
+    reader_id: int,
+    name: str = None,
+    birth_date: date = None,
+    school_addr: str = None,
+    school_class: int = None,
+    db: AsyncSession = Depends(get_db)
+):
+    repo = ReaderRepository(db)
+    return await repo.update_reader_schoolboy(
+        reader_id=reader_id,
+        name=name,
+        birth_date=birth_date,
+        school_addr=school_addr,
+        school_class=school_class
+    )
+
+
+@reader_router.put("/scientists/{reader_id}")
+async def update_reader_scientist(
+    reader_id: int,
+    name: str = None,
+    birth_date: date = None,
+    organization: str = None,
+    research_topic: str = None,
+    db: AsyncSession = Depends(get_db)
+):
+    repo = ReaderRepository(db)
+    return await repo.update_reader_scientist(
+        reader_id=reader_id,
+        name=name,
+        birth_date=birth_date,
+        organization=organization,
+        research_topic=research_topic
+    )
+
+
+@reader_router.put("/teachers/{reader_id}")
+async def update_reader_teacher(
+    reader_id: int,
+    name: str = None,
+    birth_date: date = None,
+    subject: str = None,
+    school_addr: str = None,
+    db: AsyncSession = Depends(get_db)
+):
+    repo = ReaderRepository(db)
+    return await repo.update_reader_teacher(
+        reader_id=reader_id,
+        name=name,
+        birth_date=birth_date,
+        subject=subject,
+        school_addr=school_addr
+    )
+
+
 @reader_router.delete("/{reader_id}")
 async def delete_reader_by_id(reader_id: int, db: AsyncSession = Depends(get_db)):
     repo = ReaderRepository(db)
@@ -211,6 +292,10 @@ async def delete_reader_by_id(reader_id: int, db: AsyncSession = Depends(get_db)
 
 @reader_router.get("/unreturned-loans", response_model=List[Reader])
 async def get_readers_with_unreturned_loans(title: str, db: AsyncSession = Depends(get_db)):
+    """
+    Выдать перечень читателей, на руках у которых находится указанное произведение.
+
+    """
     repo = ReaderRepository(db)
     readers = await repo.get_readers_with_unreturned_loan_by_work_title(title)
     return readers
@@ -221,6 +306,10 @@ async def get_readers_with_unreturned_loan_by_edition_title(
     title: str = Query(..., description="Название выпуска"),
     db: AsyncSession = Depends(get_db)
 ):
+    """
+    Получить список читателей, на руках у которых находится указанное издание
+
+    """
     repo = ReaderRepository(db)
     readers = await repo.get_readers_with_unreturned_loan_by_edition_title(title)
     return readers
@@ -233,45 +322,15 @@ async def get_readers_and_editions_by_work_and_date_range(
     end_date: date = Query(..., description="Конечная дата (YYYY-MM-DD)"),
     db: AsyncSession = Depends(get_db)
 ):
+    """
+    Получить перечень читателей,
+    которые в течение указанного промежутка времени получали издание с некоторым произведением,
+    и название этого издания
+
+    """
     repo = ReaderRepository(db)
     result = await repo.get_readers_and_editions_by_work_and_date_range(title, start_date, end_date)
     return result
-
-
-@reader_router.get("/loaned-editions", response_model=List[Edition])
-async def get_loaned_editions_by_reader(
-    reader_id: int = Query(...),
-    start_date: date = Query(...),
-    end_date: date = Query(...),
-    db: AsyncSession = Depends(get_db)
-):
-    repo = ReaderRepository(db)
-    titles = await repo.get_loaned_editions_by_reader_and_date_range(reader_id, start_date, end_date)
-    return titles
-
-@reader_router.get("/foreign-loans", response_model=List[Edition])
-async def get_foreign_library_loans(
-    reader_id: int = Query(...),
-    start_date: date = Query(...),
-    end_date: date = Query(...),
-    db: AsyncSession = Depends(get_db)
-):
-    repo = ReaderRepository(db)
-    titles = await repo.get_foreign_library_loans(reader_id, start_date, end_date)
-    return titles
-
-
-@reader_router.get("/unreturned-titles-by-shelf", response_model=List[Edition])
-async def get_unreturned_titles_by_shelf(
-    shelf_id: int = Query(...),
-    db: AsyncSession = Depends(get_db)
-):
-    """
-    Получить список литературы, которая в настоящий момент выдана с определенной полки некоторой библиотеки.
-    
-    """
-    repo = ReaderRepository(db)
-    return await repo.get_unreturned_titles_by_shelf(shelf_id)
 
 
 @reader_router.get("/readers-by-librarian", response_model=List[Reader])

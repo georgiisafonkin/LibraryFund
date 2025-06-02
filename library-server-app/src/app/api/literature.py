@@ -13,6 +13,53 @@ from src.app.infrastructure.repositories.literature_repo import LiteratureReposi
 
 literature_router = APIRouter(prefix="/literature", tags=["literature"])
 
+@literature_router.get("/loaned-editions", response_model=List[Edition])
+async def get_loaned_editions_by_reader(
+    reader_id: int = Query(...),
+    start_date: date = Query(...),
+    end_date: date = Query(...),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Выдать список изданий,
+    которые в течение некоторого времени получал указанный читатель из фонда библиотеки,
+    где он зарегистрирован
+    
+    """
+    repo = LiteratureRepository(db)
+    titles = await repo.get_loaned_editions_by_reader_and_date_range(reader_id, start_date, end_date)
+    return titles
+
+@literature_router.get("/foreign-loans", response_model=List[Edition])
+async def get_foreign_library_loans(
+    reader_id: int = Query(...),
+    start_date: date = Query(...),
+    end_date: date = Query(...),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Получить перечень изданий,
+    которыми в течение некоторого времени пользовался указанный читатель из фонда библиотеки,
+    где он не зарегистрирован
+
+    """
+    repo = LiteratureRepository(db)
+    titles = await repo.get_foreign_library_loans(reader_id, start_date, end_date)
+    return titles
+
+
+@literature_router.get("/unreturned-titles-by-shelf", response_model=List[Edition])
+async def get_unreturned_titles_by_shelf(
+    shelf_id: int = Query(...),
+    db: AsyncSession = Depends(get_db)
+):
+    """
+    Получить список литературы, которая в настоящий момент выдана с определенной полки некоторой библиотеки.
+    
+    """
+    repo = LiteratureRepository(db)
+    return await repo.get_unreturned_titles_by_shelf(shelf_id)
+
 @literature_router.get("/inventory/operations", response_model=List[EditionInventory])
 async def get_inventory_operations(
     start_date: date = Query(...),
