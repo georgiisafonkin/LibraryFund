@@ -284,6 +284,25 @@ async def update_reader_teacher(
         school_addr=school_addr
     )
 
+@reader_router.put("/retirees/{reader_id}")
+async def update_reader_retiree(
+    reader_id: int,
+    name: str = None,
+    birth_date: date = None,
+    organization: str = None,
+    experience: int = None,
+    db: AsyncSession = Depends(get_db)
+):
+    repo = ReaderRepository(db)
+    return await repo.update_reader_retiree(
+        reader_id=reader_id,
+        name=name,
+        birth_date=birth_date,
+        organization=organization,
+        experience=experience
+    )
+
+
 
 @reader_router.delete("/{reader_id}")
 async def delete_reader_by_id(reader_id: int, db: AsyncSession = Depends(get_db)):
@@ -373,3 +392,21 @@ async def get_readers_without_loans_in_period(
     repo = ReaderRepository(db)
     readers = await repo.get_readers_without_loans_in_period(start_date, end_date)
     return [Reader(**row) for row in readers]
+
+@reader_router.put("/workers/{reader_id}")
+async def update_reader_worker(
+    reader_id: int,
+    name: str = None,
+    birth_date: date = None,
+    organization: str = None,
+    position: str = None,
+    db: AsyncSession = Depends(get_db)
+):
+    repo = ReaderRepository(db)
+    return await repo.update_reader_worker(
+        reader_id=reader_id,
+        name=name,
+        birth_date=birth_date,
+        organization=organization,
+        position=position
+    )

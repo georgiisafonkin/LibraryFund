@@ -404,3 +404,59 @@ class ReaderRepository:
         })
         await self.db.commit()
         return {"status": "success", "message": "Teacher reader updated"}
+    
+
+    async def update_reader_retiree(
+        self,
+        reader_id: int,
+        name: str = None,
+        birth_date: date = None,
+        organization: str = None,
+        experience: int = None
+    ):
+        query = text("""
+            SELECT update_retiree_reader(
+                :reader_id,
+                :name,
+                :birth_date,
+                :organization,
+                :experience
+            );
+        """)
+        await self.db.execute(query, {
+            "reader_id": reader_id,
+            "name": name,
+            "birth_date": birth_date,
+            "organization": organization,
+            "experience": experience
+        })
+        await self.db.commit()
+        return {"status": "success", "message": "Retiree reader updated"}
+    
+
+    async def update_reader_worker(
+        self,
+        reader_id: int,
+        name: str = None,
+        birth_date: date = None,
+        organization: str = None,
+        position: str = None
+    ):
+        query = text("""
+            SELECT update_worker_reader(
+                :reader_id,
+                :name,
+                :birth_date,
+                :organization,
+                :position
+            );
+        """)
+        await self.db.execute(query, {
+            "reader_id": reader_id,
+            "name": name,
+            "birth_date": birth_date,
+            "organization": organization,
+            "position": position
+        })
+        await self.db.commit()
+        return {"status": "success", "message": "Worker reader updated"}
