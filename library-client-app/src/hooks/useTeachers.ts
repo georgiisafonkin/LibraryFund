@@ -1,8 +1,8 @@
 import { useState, useEffect, useCallback } from "react";
-import type { Student } from "../types/readers";
+import type { Teacher } from "../types/readers";
 
-export function useStudents(host: string, service: string) {
-  const [readers, setReaders] = useState<Student[]>([]);
+export function useTeachers(host: string, service: string) {
+  const [readers, setReaders] = useState<Teacher[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -10,20 +10,18 @@ export function useStudents(host: string, service: string) {
     setLoading(true);
     setError(null);
 
-    const url = `${host}readers/${service}`;
-
     try {
-      const res = await fetch(url, {
+      const res = await fetch(`${host}readers/${service}`, {
         headers: { Accept: "application/json" },
       });
       const text = await res.text();
       if (!res.ok) throw new Error(text);
 
       const data = JSON.parse(text);
-      const normalized: Student[] = data.map((r: any) => ({
+      const normalized: Teacher[] = data.map((r: any) => ({
         ...r,
-        attributes: r.attributes ?? {},
         birth_date: new Date(r.birth_date),
+        attributes: r.attributes ?? {},
       }));
       setReaders(normalized);
     } catch (e) {
@@ -33,7 +31,6 @@ export function useStudents(host: string, service: string) {
     }
   }, [host, service]);
 
-  // Загружаем при монтировании
   useEffect(() => {
     fetchReaders();
   }, [fetchReaders]);

@@ -1,8 +1,9 @@
+// hooks/useScientists.ts
 import { useState, useEffect, useCallback } from "react";
-import type { Student } from "../types/readers";
+import type { Scientist } from "../types/readers";
 
-export function useStudents(host: string, service: string) {
-  const [readers, setReaders] = useState<Student[]>([]);
+export function useScientists(host: string, service: string) {
+  const [readers, setReaders] = useState<Scientist[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,7 +21,7 @@ export function useStudents(host: string, service: string) {
       if (!res.ok) throw new Error(text);
 
       const data = JSON.parse(text);
-      const normalized: Student[] = data.map((r: any) => ({
+      const normalized: Scientist[] = data.map((r: any) => ({
         ...r,
         attributes: r.attributes ?? {},
         birth_date: new Date(r.birth_date),
@@ -33,7 +34,6 @@ export function useStudents(host: string, service: string) {
     }
   }, [host, service]);
 
-  // Загружаем при монтировании
   useEffect(() => {
     fetchReaders();
   }, [fetchReaders]);
