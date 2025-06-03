@@ -3,7 +3,6 @@ import NavBar from "./components/NavBar";
 import DashboardPage from "./pages/DashboardPage";
 import StudentsPage from "./pages/StudentsPage";
 import FundPage from "./pages/FundPage";
-import StaffPage from "./pages/StaffPage";
 import WorksPage from "./pages/WorksPage";
 import QueriesPage from "./pages/QueriesPage";
 import ScientistsPage from "./pages/ScientistsPage";
@@ -11,6 +10,7 @@ import TeachersPage from "./pages/TeachersPage";
 import SchoolboyPage from "./pages/SchoolboyPage";
 import WorkerPage from "./pages/WorkerPage";
 import RetireesPage from "./pages/RetireesPage";
+import LibrariansPage from "./pages/LibrariansPage";
 
 export default function App() {
   return (
@@ -21,7 +21,7 @@ export default function App() {
           <Route path="/" element={<DashboardPage />} />
           <Route path="/students" element={<StudentsPage />} />
           <Route path="/fund" element={<FundPage />} />
-          <Route path="/staff" element={<StaffPage />} />
+          <Route path="/staff" element={<LibrariansPage />} />
           <Route path="/works" element={<WorksPage />} />
           <Route path="/queries" element={<QueriesPage />} />
           <Route path="/scientists" element={<ScientistsPage />} />
